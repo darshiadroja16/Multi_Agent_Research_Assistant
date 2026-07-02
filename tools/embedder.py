@@ -102,7 +102,7 @@ def get_embedding(text: str ) ->list[float]:
 # for list of string 
 # input -> list of string  and output -> list of vectors(list of lists)
 # used for embedding multiple papers 
-def get_embeddings_batch(texts : str) -> list[list[float]]:
+def get_embeddings_batch(texts : list[str]) -> list[list[float]]:
     embeddings= []
     for i, text in enumerate(texts):
         embedding = get_embedding(text)
