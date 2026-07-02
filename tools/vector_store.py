@@ -167,7 +167,7 @@
 
 import chromadb
 from dotenv import load_dotenv
-from tools.embedder import get_embedding, get_embeddings_batch
+from embedder import get_embedding, get_embeddings_batch
 import os
 
 load_dotenv()
