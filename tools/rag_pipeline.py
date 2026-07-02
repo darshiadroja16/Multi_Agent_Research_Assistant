@@ -260,7 +260,6 @@ rag_query("What is the weather in Mumbai today?")
 
 print("EXPERIMENT 1 — n_results ka effect")
 
-
 print("\n--- Sirf 1 chunk ke saath ---")
 chunks_1 = retrieve_chunks("What is GPT-3's training data?", n_results=1)
 generate_answer("What is GPT-3's training data?", chunks_1)
@@ -268,3 +267,11 @@ generate_answer("What is GPT-3's training data?", chunks_1)
 print("\n--- 4 chunks ke saath ---")
 chunks_4 = retrieve_chunks("What is GPT-3's training data?", n_results=4)
 generate_answer("What is GPT-3's training data?", chunks_4)
+
+print("\n--- Sirf 1 chunk ke saath ---")
+chunks_1 = retrieve_chunks("Compare BERT and GPT architecture differences", n_results=1)
+generate_answer("Compare BERT and GPT architecture differences", chunks_1)
+
+print("\n--- 4 chunks ke saath ---")
+chunks_4 = retrieve_chunks("Compare BERT and GPT architecture differences", n_results=4)
+generate_answer("Compare BERT and GPT architecture differences", chunks_4)
