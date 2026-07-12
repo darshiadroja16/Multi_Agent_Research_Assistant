@@ -17,19 +17,21 @@ class ResearchState(TypedDict):
 
 
 
+#request from frontend 
+class ResearchRequest(BaseModel):
+    query: str
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "Compare transformer and LSTM for NLP tasks"
+            }
+        }
 
-# class ResearchRequest(BaseModel):
-#     """
-#     Frontend se aane wala request
-#     """
-#     query: str
 
-
-# class ResearchResponse(BaseModel):
-#     """
-#     Frontend ko jaane wala response
-#     """
-#     query: str
-#     final_answer: dict
-#     papers_found: int
-#     iterations_taken: int
+# response to frontend 
+class ResearchResponse(BaseModel):
+    query: str
+    final_answer: dict
+    papers_found: int
+    iterations: int
+    time_taken : float
