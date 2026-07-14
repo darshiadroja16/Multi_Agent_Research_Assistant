@@ -11,8 +11,10 @@ load_dotenv() # to read .env file
 # API connections
 genai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
 # store data
 chroma_client = chromadb.PersistentClient(path="./chroma_db") 
+
 #create or open collection
 collection = chroma_client.get_or_create_collection(name="rag_pipeline_test",metadata={"hnsw:space":"cosine"})
 
@@ -54,7 +56,7 @@ def chunk_text(text, chunk_size=400, overlap=50):
 # Documents load -> chunk -> embed -> store in chromadb 
 def index_documents(documents):
     print("PHASE 1 — INDEXING")
-    print("INDEXING")
+    print("Indexing documents...")
 
     all_chunks = []
     all_ids = []
@@ -71,7 +73,6 @@ def index_documents(documents):
             chunk_counter += 1
 
     print(f"\nTotal chunks: {len(all_chunks)}")
-    print("Embedding sab chunks...")
 
     embeddings = []
     for i, chunk in enumerate(all_chunks):
@@ -86,13 +87,11 @@ def index_documents(documents):
     )
 
     print(f"\nIndexing complete!")
-    print(f"Total chunks in ChromaDB: {collection.count()}")
 
 # Query -> embed -> chromadb search -> top chunks
 def retrieve_chunks(query, n_results=4):
 
     print("PHASE 2 — RETRIEVAL")
-    print(f"Query: '{query}'")
 
     query_embedding = get_embedding(query)
 
@@ -135,7 +134,7 @@ Question: {query}
 
 Answer (from context only):"""
 
-    print("LLM ko context + query bhej rahe hain...")
+    print("We are sending the context and query to the LLM.")
 
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
