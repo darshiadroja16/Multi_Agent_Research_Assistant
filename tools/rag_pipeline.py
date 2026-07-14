@@ -100,17 +100,7 @@ def retrieve_chunks(query, n_results=4):
         n_results=n_results
     )
 
-    chunks = results['documents'][0]
-    distances = results['distances'][0]
-
-    print(f"\nTop {n_results} relevant chunks found:")
-    for i, (chunk, dist) in enumerate(zip(chunks, distances)):
-        similarity = 1 - dist
-        bar = "█" * int(similarity * 15)
-        print(f"\n  Rank {i+1} | Similarity: {similarity:.4f} {bar}")
-        print(f"  Text: {chunk[:80]}...")
-
-    return chunks
+    return results['documents'][0]
 
 
 # context chunks + Query -> Groq LLM -> Answer
@@ -134,8 +124,6 @@ Question: {query}
 
 Answer (from context only):"""
 
-    print("We are sending the context and query to the LLM.")
-
     response = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
@@ -153,10 +141,7 @@ Answer (from context only):"""
     )
 
     answer = response.choices[0].message.content
-
-    print("FINAL ANSWER:")
-    print(answer)
-
+    print(f"Answer: {answer}\n")
     return answer
 
 
@@ -169,7 +154,7 @@ def rag_query(query):
 
     chunks = retrieve_chunks(query, n_results=3)
     answer = generate_answer(query, chunks)
-
+    
     return answer
 
 
@@ -229,8 +214,6 @@ research_documents = [
     """,
 ]
 
-
-
 print("Checking if already indexed...")
 if collection.count() == 0:
     index_documents(research_documents)
@@ -238,39 +221,24 @@ else:
     print(f"Already indexed! {collection.count()} chunks found. Skipping indexing.")
 
 print("TESTING RAG PIPELINE")
-
 rag_query("How does the transformer use attention mechanism?")
-
-print("\n")
 rag_query("What is the difference between BERT and GPT architecture?")
-
-print("\n")
 rag_query("How does LSTM handle the vanishing gradient problem?")
-
-print("\n")
 rag_query("What was the training time for the transformer model?")
-
-print("\n")
 rag_query("What is the weather in Mumbai today?")
 
-
-
-
-
-print("EXPERIMENT 1 — n_results ka effect")
-
-print("\n--- Sirf 1 chunk ke saath ---")
+print("\n--- testing with 1 chunk ---")
 chunks_1 = retrieve_chunks("What is GPT-3's training data?", n_results=1)
 generate_answer("What is GPT-3's training data?", chunks_1)
 
-print("\n--- 4 chunks ke saath ---")
+print("\n--- testing with 4 chunks ---")
 chunks_4 = retrieve_chunks("What is GPT-3's training data?", n_results=4)
 generate_answer("What is GPT-3's training data?", chunks_4)
 
-print("\n--- Sirf 1 chunk ke saath ---")
+print("\n--- 1 chunk ---")
 chunks_1 = retrieve_chunks("Compare BERT and GPT architecture differences", n_results=1)
 generate_answer("Compare BERT and GPT architecture differences", chunks_1)
 
-print("\n--- 4 chunks ke saath ---")
+print("\n--- 4 chunks ---")
 chunks_4 = retrieve_chunks("Compare BERT and GPT architecture differences", n_results=4)
 generate_answer("Compare BERT and GPT architecture differences", chunks_4)
