@@ -45,8 +45,7 @@ chunks = search_similar_chunks(
     collection_name="integration_test"
 )
 print(f"Found {len(chunks)} chunks")
-for c in chunks:
-    print(f"  [{c['similarity']}] {c['content'][:60]}...")
+
 
 # step 3 — Summarize
 print("\n[Step 3] Generating summary...")
@@ -54,20 +53,8 @@ summary = generate_summary(query, chunks)
 print(f"Key findings: {len(summary['key_findings'])}")
 print(f"Confidence  : {summary['confidence_score']}/10")
 
-print("\nKey Findings:")
 for f in summary['key_findings']:
-    print(f"  → {f}")
-
-print("\nMethodology:")
-print(f"  {summary['methodology_comparison']}")
-
-print("\nResearch Gaps:")
-for g in summary['research_gaps']:
-    print(f"  → {g}")
-
-print("\nRecommendations:")
-for r in summary['recommendations']:
-    print(f"  → {r}")
+    print(f"- {f}")
 
 # s 6tep 4 — Critique
 print("\n[Step 4] Critiquing summary...")
