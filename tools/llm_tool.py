@@ -35,15 +35,8 @@ def generate_summary(
     query: str,
     context_chunks: list[dict]
 ) -> dict:
-    """
-    retrieved chunks se structured summary banao.
-    Args:
-        query         : user ka research question
-        context_chunks: list of dicts from vector_store
-    Returns:
-        dict with key_findings, methodology, gaps, recommendations
-    """
-
+    
+    # Returns: dict with key_findings, methodology, gaps, recommendations
     # to provide context it joins all the chunks retrived for query that is passed in the function args
     # so it can be passed directly to the llm as context retrived from chromadb
     context = "\n\n---\n\n".join([
@@ -105,15 +98,7 @@ def critique_summary(
     query: str,
     summary: dict
 ) -> dict:
-    """
-    Summary ki quality evaluate karo.
-    Args:
-        query   : original research question
-        summary : generate_summary ka output
-    Returns:
-        dict with score, issues, needs_revision
-    """
-
+    # Returns: dict with score, issues, needs_revision
     user_prompt = f"""Evaluate this research summary for quality.
 
 Original Research Query: {query}
@@ -160,8 +145,6 @@ Respond in this exact JSON format:
 
 
 if __name__ == "__main__":
-
-    print("Testing llm_tool.py...")
 
     # fake context chunks—vector_store format 
     test_chunks = [
