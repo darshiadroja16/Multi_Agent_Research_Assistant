@@ -26,17 +26,8 @@ def chunk_text(
     chunk_size: int = 400,
     overlap: int = 50
 ) -> list[str]:
-    """
-    Text ko meaningful chunks mein todo.
-
-    Args:
-        text       : input text
-        chunk_size : characters per chunk
-        overlap    : overlap between consecutive chunks
-
-    Returns:
-        list of text chunks
-    """
+    # Returns: list of text chunks
+    
     chunks = []
     start = 0
 
@@ -78,17 +69,9 @@ def add_papers_to_store(
     papers: list[dict],
     collection_name: str = "research_papers"
 ) -> int:
-    """
-    ArXiv papers ko ChromaDB mein store karo.
 
-    Args:
-        papers: list of dicts with keys:
-                title, abstract, url, authors
-        collection_name: ChromaDB collection naam
-
-    Returns:
-        total chunks stored
-    """
+    # Returns: total chunks stored
+    
     collection = get_collection(collection_name)
 
     all_chunks = []
@@ -139,17 +122,8 @@ def search_similar_chunks(
     n_results: int = 4,
     collection_name: str = "research_papers"
 ) -> list[dict]:
-    """
-    Query ke liye most relevant chunks fetch karo.
-
-    Args:
-        query           : search query string
-        n_results       : kitne chunks chahiye
-        collection_name : ChromaDB collection naam
-
-    Returns:
-        list of dicts with keys: content, metadata, similarity
-    """
+    
+    # Returns: list of dicts with keys: content, metadata, similarity
     collection = get_collection(collection_name)
 
     # empty collection check
@@ -183,7 +157,7 @@ def search_similar_chunks(
 
 
 def clear_collection(collection_name: str = "research_papers"):
-    """Collection delete karo — fresh start ke liye"""
+    #  to delete collection 
     try:
         chroma_client.delete_collection(collection_name)
         print(f"Collection '{collection_name}' cleared!")
