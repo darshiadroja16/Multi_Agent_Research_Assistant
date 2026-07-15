@@ -55,7 +55,6 @@ baseline = llm_call(
 print(baseline)
 
 
-print("\n" + "=" * 60)
 print("Test 2 - Role + grounding")
 
 role_grounded = llm_call(
@@ -75,8 +74,6 @@ Provide a detailed comparison based strictly on the context."""
 
 print(role_grounded)
 
-
-print("\n" + "=" * 60)
 print("TEST 3 — Role + Grounding + Chain Of Thought")
 
 cot_response = llm_call(
@@ -87,7 +84,7 @@ Answer ONLY from provided context. Never use outside knowledge.""",
 {SAMPLE_CONTEXT}
 
 Question: {SAMPLE_QUERY}
-
+ 
 Think step by step:
 Step 1: Identify architectural differences
 Step 2: Compare performance metrics from context
@@ -99,7 +96,6 @@ Provide your analysis following these steps."""
 print(cot_response)
 
 
-print("\n" + "=" * 60)
 print("TEST 4 — Production Summarizer Prompt(JSON)")
 
 SUMMARIZER_SYSTEM = """You are an expert research scientist
@@ -163,7 +159,7 @@ print(f"\nConfidence Score: {parsed_summary['confidence_score']}/10")
 
 
 
-print("\n" + "=" * 60)
+
 print("TEST 5 — Production Critic Prompt(JSON)")
 
 CRITIC_SYSTEM = """You are a strict research quality evaluator.
@@ -222,6 +218,4 @@ for issue in parsed_critic.get('issues', []):
 print(f"  Suggestions:")
 for sug in parsed_critic.get('improvement_suggestions', []):
     print(f"    → {sug}")
-
-
     
