@@ -23,13 +23,18 @@ def get_embedding(text: str ) ->list[float]:
 # input -> list of string  and output -> list of vectors(list of lists)
 # used for embedding multiple papers 
 def get_embeddings_batch(texts : list[str]) -> list[list[float]]:
-    embeddings= []
-    for i, text in enumerate(texts):
-        embedding = get_embedding(text)
-        embeddings.append(embedding)
-        print(f"  Embedded [{i+1}/{len(texts)}]: {text[:50]}...")
-
-    return embeddings
+    if not texts:
+        return []
+    
+    # Gemini API supports batching by passing the list directly
+    result = client.models.embed_content(model=Embedding_model, contents=texts)
+    
+    # Check if a single embedding is returned (if length of texts is 1) or a list
+    if hasattr(result, 'embeddings') and result.embeddings:
+        return [emb.values for emb in result.embeddings]
+    else:
+        # Fallback if structure is different
+        return [result.embeddings[0].values] if texts else []
 
 # This function will run just for this file means to print output of this file it will be useful  
 if __name__ == "__main__":
