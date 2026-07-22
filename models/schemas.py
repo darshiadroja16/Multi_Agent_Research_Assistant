@@ -7,6 +7,7 @@ from pydantic import BaseModel
 # reserachstate is the shared state between whole system or graph it passes the dictionary in graph
 # every node updates the state 
 class ResearchState(TypedDict):
+    session_id: str
     query: str
     papers: List[dict]
     rag_results: List[dict]

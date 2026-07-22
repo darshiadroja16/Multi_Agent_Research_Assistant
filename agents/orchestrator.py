@@ -7,6 +7,11 @@ from tools.vector_store import (add_papers_to_store,search_similar_chunks,clear_
 from tools.llm_tool import (generate_summary,critique_summary)
 import arxiv                   
 import time
+import uuid
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 # ==========================================================================================
@@ -41,14 +46,13 @@ def search_node(state:ResearchState) -> dict:
                 "url"      : result.entry_id,
                 "published": str(result.published.date()),
             })
-            time.sleep(0.2)
 
-        print(f"\nPapers found:{len(papers)}")
+        logger.info(f"\nPapers found:{len(papers)}")
         for i,p in enumerate(papers):
-            print(f"[{i+1}] {p['title'][:55]}...")
+            logger.info(f"[{i+1}] {p['title'][:55]}...")
 
     except Exception as e:
-        print(f"ArXiv search error:{e}")
+        logger.error(f"ArXiv search error:{e}")
         papers =[]
 
     return {"papers": papers}
@@ -62,15 +66,16 @@ def rag_node(state: ResearchState) -> dict:
     
     papers = state["papers"]
     query  = state["query"]
+    session_id = state.get("session_id", "default_collection")
 
     if not papers:
-        print("no papers to index")
+        logger.warning("no papers to index")
         return {"rag_results": []}
     
-    collection_name ="current_research"
+    collection_name = f"research_{session_id}"
     clear_collection(collection_name)
 
-    print(f"Indexing {len(papers)} papers...")
+    logger.info(f"Indexing {len(papers)} papers in collection {collection_name}...")
     add_papers_to_store(papers, collection_name)
 
     print(f"\nretrieving relevant chunks....")
@@ -96,9 +101,11 @@ def summarizer_node(state:ResearchState) ->dict:
 
     query = state["query"]
     rag_results =state["rag_results"]
+    previous_summary = state.get("summary", {})
+    critique = state.get("critique", {})
 
     if not rag_results:
-        print("No RAG results — returning default summary")
+        logger.warning("No RAG results — returning default summary")
         return {
             "summary": {
                 "key_findings"           : ["No relevant papers found"],
@@ -109,15 +116,20 @@ def summarizer_node(state:ResearchState) ->dict:
             }
         }
     
-    print(f"Chunks available: {len(rag_results)}")
-    print("Calling Groq LLM for summary...")
+    logger.info(f"Chunks available: {len(rag_results)}")
+    logger.info("Calling Groq LLM for summary...")
 
-    summary = generate_summary(query, rag_results)
+    summary = generate_summary(
+        query, 
+        rag_results, 
+        previous_summary=previous_summary if previous_summary else None, 
+        critique=critique if critique else None
+    )
 
-    print(f"\nSummary generated!")
-    print(f"  Key findings  : {len(summary.get('key_findings', []))}")
-    print(f"  Research gaps : {len(summary.get('research_gaps', []))}")
-    print(f"  Confidence    : {summary.get('confidence_score', 0)}/10")
+    logger.info(f"\nSummary generated!")
+    logger.info(f"  Key findings  : {len(summary.get('key_findings', []))}")
+    logger.info(f"  Research gaps : {len(summary.get('research_gaps', []))}")
+    logger.info(f"  Confidence    : {summary.get('confidence_score', 0)}/10")
 
     return {"summary": summary}
 
@@ -134,20 +146,20 @@ def critic_node(state:ResearchState) -> dict:
     summary = state["summary"]
     current_iteration = state["iteration"]
 
-    print("Evaluating summary quality...")
+    logger.info("Evaluating summary quality...")
 
     critique = critique_summary(query, summary)
 
     score          = critique.get("score", 0)
     needs_revision = critique.get("needs_revision", False)
 
-    print(f"\n  Score : {score}/10")
-    print(f"Needs Revision : {needs_revision}")
+    logger.info(f"\n  Score : {score}/10")
+    logger.info(f"Needs Revision : {needs_revision}")
 
     if critique.get("issues"):
-        print(f"  Issues:")
+        logger.info(f"  Issues:")
         for issue in critique["issues"]:
-            print(f" → {issue}")
+            logger.info(f" -> {issue}")
 
     if current_iteration >= 2:
         print("\nMax iterations reached — accepting as is")
@@ -171,10 +183,10 @@ def should_revise(state: ResearchState) -> str:
     iteration = state["iteration"]
 
     if needs_revision and iteration < 3:
-        print(f"\n↩ Score{score}/10—Looping back to summarizer.....")
+        logger.info(f"\n↩ Score{score}/10—Looping back to summarizer.....")
         return "revise"
     else:
-        print(f"\nScore {score}/10—Moving to format...")
+        logger.info(f"\nScore {score}/10—Moving to format...")
         return "finish"
     
 
@@ -188,6 +200,11 @@ def format_node(state: ResearchState) -> dict:
     summary  = state["summary"]
     papers   = state["papers"]
     critique = state["critique"]
+    session_id = state.get("session_id", "default_collection")
+    
+    # Cleanup vector store
+    collection_name = f"research_{session_id}"
+    clear_collection(collection_name)
 
     final_answer = {
 
@@ -219,9 +236,9 @@ def format_node(state: ResearchState) -> dict:
         ]
     }
 
-    print(f"Quality Score : {final_answer['quality_score']}/10")
-    print(f"Papers Used   : {final_answer['papers_analyzed']}")
-    print(f"Iterations    : {final_answer['iterations_taken']}")
+    logger.info(f"Quality Score : {final_answer['quality_score']}/10")
+    logger.info(f"Papers Used   : {final_answer['papers_analyzed']}")
+    logger.info(f"Iterations    : {final_answer['iterations_taken']}")
 
     return {"final_answer": final_answer}
 
@@ -284,14 +301,15 @@ def run_research(query: str) -> dict:
         final_answer dict with all findings + sources
     """
 
-    print(f"NEW RESEARCH QUERY")
-    print(f"Query: {query}")
+    logger.info(f"NEW RESEARCH QUERY")
+    logger.info(f"Query: {query}")
 
     # build the graph
     graph = build_graph()
 
     # initial state (only query will be filled)
     initial_state: ResearchState = {
+        "session_id"  : uuid.uuid4().hex,
         "query"       : query,
         "papers"      : [],
         "rag_results" : [],
@@ -315,7 +333,7 @@ if __name__ == "__main__":
     )
 
     print("FINAL RESULTS")
-    print(f"{'█'*50}")
+    print("-" * 50)
 
     print(f"\nQuality Score   : {result['quality_score']}/10")
     print(f"Papers Analyzed : {result['papers_analyzed']}")
@@ -327,11 +345,11 @@ if __name__ == "__main__":
 
     print(f"\nRESEARCH GAPS:")
     for g in result['research_gaps']:
-        print(f"→{g}")
+        print(f"-> {g}")
 
     print(f"\nRECOMMENDATIONS:")
     for r in result['recommendations']:
-        print(f"→{r}")
+        print(f"-> {r}")
 
     print(f"\nSOURCES:")
     for s in result['sources']:

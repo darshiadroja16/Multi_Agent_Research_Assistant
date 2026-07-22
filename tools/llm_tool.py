@@ -33,7 +33,9 @@ Always respond in valid JSON format."""
 
 def generate_summary(
     query: str,
-    context_chunks: list[dict]
+    context_chunks: list[dict],
+    previous_summary: dict = None,
+    critique: dict = None
 ) -> dict:
     
     # Returns: dict with key_findings, methodology, gaps, recommendations
@@ -53,15 +55,30 @@ Research Query: {query}
 
 Paper Context:
 {context}
+"""
 
+    if previous_summary and critique:
+        user_prompt += f"""
+Previous Summary:
+{json.dumps(previous_summary, indent=2)}
+
+Critic Feedback on Previous Summary:
+{json.dumps(critique, indent=2)}
+
+Please revise and improve the summary by strictly addressing the critic feedback.
+"""
+    else:
+        user_prompt += """
 Think step by step:
 1. What are the key technical findings across papers?
 2. How do the methodologies differ or complement?
 3. What gaps or limitations are mentioned?
 4. What would you recommend based on findings?
+"""
 
+    user_prompt += """
 Respond in this exact JSON format:
-{{
+{
   "key_findings": [
     "specific finding 1",
     "specific finding 2",

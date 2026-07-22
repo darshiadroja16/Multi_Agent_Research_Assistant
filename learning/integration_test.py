@@ -1,10 +1,14 @@
-from embedder import get_embeddings_batch
-from vector_store import (
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from tools.embedder import get_embeddings_batch
+from tools.vector_store import (
     add_papers_to_store,
     search_similar_chunks,
     clear_collection
 )
-from llm_tool import generate_summary, critique_summary
+from tools.llm_tool import generate_summary, critique_summary
 
 print("All Tools Together")
 
