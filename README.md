@@ -9,17 +9,23 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
-[![LangChain](https://img.shields.io/badge/LangGraph-1C3C3C?style=for-the-badge&logo=chainlink&logoColor=white)](https://langchain-ai.github.io/langgraph)
+[![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=for-the-badge&logo=chainlink&logoColor=white)](https://langchain-ai.github.io/langgraph)
 [![Google Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com)
 [![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white)](https://groq.com)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-E8A838?style=for-the-badge&logo=databricks&logoColor=white)](https://trychroma.com)
 [![ArXiv](https://img.shields.io/badge/ArXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org)
+[![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
 
 <br/>
 
 > A multi-agent AI system that autonomously searches ArXiv, retrieves relevant
 > paper chunks using RAG, synthesizes structured research summaries using
 > Llama 3.3 70B, and self-improves output through a Critic feedback loop.
+
+<br/>
+
+### 🔗 Live Demo
+**[→ Try it here](https://multiagentresearchassistant-jyfbxsqksjvcyhgvar235w.streamlit.app/)**
 
 </div>
 
@@ -45,15 +51,13 @@
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                        STREAMLIT UI                             ║
-║                      frontend/app.py                            ║
-║                        port 8501                                ║
+║              multiagentresearchassistant.streamlit.app          ║
 ╚══════════════════════════════╦═══════════════════════════════════╝
                                ║  HTTP POST /research
                                ▼
 ╔══════════════════════════════════════════════════════════════════╗
 ║                      FASTAPI BACKEND                            ║
-║                         main.py                                 ║
-║                         port 8000                               ║
+║           multi-agent-research-assistant.onrender.com           ║
 ╚══════════════════════════════╦═══════════════════════════════════╝
                                ║
                                ▼
@@ -129,21 +133,21 @@ score < 7  →  rejected → back to summarizer (max 2 loops)
 
 <div align="center">
 
-### Core AI Stack
-| | | | | |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="https://skillicons.dev/icons?i=python" width="48"/><br/>Python | <img src="https://skillicons.dev/icons?i=fastapi" width="48"/><br/>FastAPI | <img src="https://skillicons.dev/icons?i=git" width="48"/><br/>Git | <img src="https://skillicons.dev/icons?i=github" width="48"/><br/>GitHub | <img src="https://skillicons.dev/icons?i=vscode" width="48"/><br/>VS Code |
+| | | | | | | |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="https://skillicons.dev/icons?i=python" width="48"/><br/>Python | <img src="https://skillicons.dev/icons?i=fastapi" width="48"/><br/>FastAPI | <img src="https://skillicons.dev/icons?i=github" width="48"/><br/>GitHub | <img src="https://skillicons.dev/icons?i=git" width="48"/><br/>Git | <img src="https://skillicons.dev/icons?i=vscode" width="48"/><br/>VS Code | <img src="https://skillicons.dev/icons?i=render" width="48"/><br/>Render | <img src="https://skillicons.dev/icons?i=cloudflare" width="48"/><br/>Streamlit |
 
 ### APIs & Services
+
 | Tool | Role |
 |:---:|:---|
 | 🟣 **Groq** | LLM inference — Llama 3.3 70B (free, fastest) |
 | 🔵 **Google Gemini** | Text embeddings — 768 dimensional vectors |
-| 🟠 **ArXiv** | Research paper database — 2M+ papers, free |
+| 🟠 **ArXiv** | Research paper database — 2M+ papers, completely free |
 | 🟡 **ChromaDB** | Vector database — stores and searches embeddings |
-| 🔴 **LangGraph** | Multi-agent orchestration — graph based flow |
+| 🔴 **LangGraph** | Multi-agent orchestration — graph based agent flow |
 | 🟤 **LangSmith** | Agent monitoring — traces every step |
-| 🩷 **Streamlit** | Python-only frontend UI |
+| 🩷 **Streamlit** | Python-only frontend — no JS needed |
 
 </div>
 
@@ -168,10 +172,15 @@ Multi_Agent_Research_Assistant/
 ├── 📂 frontend/
 │   └── app.py                 ← Streamlit UI — search bar + results display
 │
+├── 📂 learning/               ← practice files used while building this
+│   ├── rag_pipeline.py        ← RAG from scratch experiment
+│   ├── prompt_test.py         ← prompt engineering tests
+│   └── integration_test.py    ← all tools integration test
+│
 ├── main.py                    ← FastAPI server — /research /health
-├── .env                       ← API keys (not committed — see .env.example)
-├── .env.example               ← Template — copy this to create .env
-└── pyproject.toml             ← Dependencies managed with uv
+├── requirements.txt           ← dependencies for deployment
+├── .env.example               ← copy this to create your .env
+└── pyproject.toml             ← dependencies managed with uv
 ```
 
 ---
@@ -203,8 +212,7 @@ source .venv/bin/activate      # Mac/Linux
 ### 3 — Install Dependencies
 
 ```bash
-uv add google-generativeai chromadb groq langgraph langchain \
-       fastapi uvicorn streamlit arxiv python-dotenv requests
+pip install -r requirements.txt
 ```
 
 ### 4 — Set Up API Keys
@@ -224,7 +232,7 @@ LANGCHAIN_PROJECT=research-assistant
 BACKEND_URL=http://localhost:8000
 ```
 
-> ⚠️ Never commit `.env` — it's already in `.gitignore`
+> ⚠️ Never commit `.env` — it is already in `.gitignore`
 
 ### 5 — Run Backend
 
@@ -249,15 +257,25 @@ http://localhost:8501
 
 ---
 
+## 🚀 Deployment
+
+| Service | Platform | URL |
+|---|---|---|
+| Backend (FastAPI) | Render | [multi-agent-research-assistant-52n9.onrender.com](https://multi-agent-research-assistant-52n9.onrender.com) |
+| Frontend (Streamlit) | Streamlit Cloud | [multiagentresearchassistant.streamlit.app](https://multiagentresearchassistant-jyfbxsqksjvcyhgvar235w.streamlit.app/) |
+
+> ℹ️ Free tier on Render sleeps after 15 min of inactivity. First request may take 30-50 seconds to wake up.
+
+---
+
 ## 🔭 Future Scope
 
-- [ ] **PDF Upload** — summarize any paper directly without ArXiv search
-- [ ] **Paper Comparison** — compare two specific papers side by side
-- [ ] **Research History** — save and revisit past queries
-- [ ] **Cloud Deployment** — Railway (backend) + Streamlit Cloud (frontend)
-- [ ] **More Sources** — Semantic Scholar, PubMed, IEEE alongside ArXiv
-- [ ] **Streaming Output** — results appear progressively instead of all at once
-- [ ] **Citation Export** — download findings as PDF or BibTeX
+- [ ] PDF upload — summarize any paper directly
+- [ ] Side-by-side paper comparison
+- [ ] Save and export research history
+- [ ] Add Semantic Scholar as second paper source
+- [ ] Streaming responses so results appear progressively
+- [ ] Citation export as BibTeX or PDF
 
 ---
 
@@ -265,13 +283,8 @@ http://localhost:8501
 
 ---
 
-Made with ☕ by **Darshi Adroja**
+got tired of reading papers manually so i built something to do it for me 🤷‍♀️
 
-*Final year B.Tech CSE · Parul University, Vadodara*
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/darshi-adroja-1a3a9b33b/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/darshiadroja16)
-
-⭐ **Star this repo if it helped you understand RAG or multi-agent systems**
+⭐ drop a star if this was useful
 
 </div>
